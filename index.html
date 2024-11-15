@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download and Play YouTube Videos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .video-item {
+      margin-bottom: 20px;
+      display: inline-block;
+      text-align: center;
+      margin-right: 20px;
+      cursor: pointer;
+    }
+
+    .video-item img {
+      width: 180px;
+      height: 101px;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+
+    .video-item a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .video-item a:hover {
+      color: #f39c12;
+    }
+
+    h1, h2 {
+      color: white;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 10px;
+      width: 300px;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #f39c12;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #e67e22;
+    }
+
+    .video-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .video-description {
+      margin-top: 10px;
+      color: #bbb;
+      font-size: 14px;
+    }
+
+    .video-uploader {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Download and Play YouTube Videos</h1>
+
+  <!-- Input form to download video -->
+  <div>
+    <input type="text" id="videoUrl" placeholder="Enter YouTube Video URL" />
+    <button onclick="downloadVideo()">Download Video</button>
+  </div>
+
+  <h2>Downloaded Videos</h2>
+  <div class="video-list" id="videoList"></div>
+
+  <script>
+    // Function to download video
+    async function downloadVideo() {
+      const url = document.getElementById('videoUrl').value;
+      if (!url) {
+        alert('Please enter a YouTube video URL.');
+        return;
+      }
+
+      // Request the server to download the video
+      const response = await fetch(`/download?url=${encodeURIComponent(url)}`, {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Reload the list of videos after downloading
+        loadVideoList();
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+      }
+    }
+
+    // Fetch the list of downloaded videos and display them
+    async function loadVideoList() {
+      const response = await fetch('/videos');
+      if (response.ok) {
+        const videos = await response.json();
+        const videoList = document.getElementById('videoList');
+        videoList.innerHTML = '';
+        videos.forEach(video => {
+          const listItem = document.createElement('div');
+          listItem.classList.add('video-item');
+          listItem.innerHTML = `
+            <img src="${video.thumbnail}" alt="Thumbnail">
+            <div><a href="/play/${video.videoId}">${video.videoTitle}</a></div>
+            <div class="video-uploader">Uploaded by: ${video.uploader}</div>
+          `;
+          videoList.appendChild(listItem);
+        });
+      }
+    }
+
+    // Load videos when the page is loaded
+    window.onload = loadVideoList;
+  </script>
+
+</body>
+</html>
