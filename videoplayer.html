@@ -92,11 +92,12 @@
     const videoUrl = `/downloads/${videoId}.mp4`;
     const audioUrl = `/downloads/${videoId}.mp3`;
 
-    // Create video element to render on canvas
+    // Create a hidden video element to render the video
     const video = document.createElement('video');
     video.src = videoUrl;
     video.autoplay = true;
     video.loop = false;
+    video.style.display = 'none';  // Hide the video element
 
     // Get canvas context
     const canvas = document.getElementById('videoCanvas');
@@ -120,7 +121,7 @@
       video.volume = e.target.value;
     });
 
-    // Sync the canvas with the video
+    // Sync the canvas with the hidden video element
     video.addEventListener('play', function() {
       function drawFrame() {
         if (!video.paused && !video.ended) {
